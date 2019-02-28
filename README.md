@@ -1,5 +1,6 @@
 # my_raytracer
 Just some code written while learning raytracing
+
 To run and compile under shell:
 
 ```shell
