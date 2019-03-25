@@ -33,3 +33,6 @@
 
 # Apple's shit
 .DS_Store
+
+# Result
+result.ppm
