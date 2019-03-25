@@ -8,11 +8,23 @@
 #include "sphere.hpp"
 #include "camera.hpp"
 
+vec3 random_in_unit_sphere() {
+    vec3 p;
+    do {
+        p = 2.0*vec3(drand48(), drand48(), drand48()) - vec3(1, 1, 1);
+    } while (p.lengthSquared() >= 1.0);
+    return p;
+}
+
 vec3 color_at(const ray &r, hitable *world) {
     hit_record rec;
-    if (world->hit(r, 0, std::numeric_limits<float>::max(), rec)) {
-        return 0.5 * vec3(rec.normal.x + 1.0,
-            rec.normal.y + 1.0, rec.normal.z + 1.0);
+    if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
+        // hit point + normal == origin of
+        // a unit sphere tangent to the hit surface
+        // plus another vector to get a random pos in the unit sphere
+        vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+        // send another ray recursively
+        return 0.5 * color_at(ray(rec.p, target - rec.p), world);
     } else {
         vec3 unit_dir = unit(r.direction);
         float k = 0.5 * (unit_dir.y + 1.0);
@@ -21,8 +33,8 @@ vec3 color_at(const ray &r, hitable *world) {
 }
 
 int main() {
-    const int nx = 200;
-    const int ny = 100;
+    const int nx = 400;
+    const int ny = 200;
     const int ns = 100;
 
     // Scene Configuration
@@ -48,6 +60,8 @@ int main() {
                 col += color_at(r, world);
             }
             col /= float(ns);
+            // gamma correction:
+            col = vec3(std::sqrt(col.x), std::sqrt(col.y), std::sqrt(col.z));
 
             int ir = int(255.99*col[0]);
             int ig = int(255.99*col[1]);
