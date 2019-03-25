@@ -7,24 +7,26 @@
 #include "hitable_list.hpp"
 #include "sphere.hpp"
 #include "camera.hpp"
+#include "material.hpp"
 
-vec3 random_in_unit_sphere() {
-    vec3 p;
-    do {
-        p = 2.0*vec3(drand48(), drand48(), drand48()) - vec3(1, 1, 1);
-    } while (p.lengthSquared() >= 1.0);
-    return p;
-}
-
-vec3 color_at(const ray &r, hitable *world) {
+/*****
+This function use Path Tracing to calculate color at certain pixels.
+The mat_ptr(pointer pointed to material) is set during the intersection
+test(hit)
+*****/
+vec3 color_at(const ray &r, hitable *world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
-        // hit point + normal == origin of
-        // a unit sphere tangent to the hit surface
-        // plus another vector to get a random pos in the unit sphere
-        vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        // send another ray recursively
-        return 0.5 * color_at(ray(rec.p, target - rec.p), world);
+        ray scattered;
+        vec3 attenuation;
+        if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+            vec3 col = color_at(scattered, world, depth + 1);
+            // object reflects the color of their own...
+            return vec3(attenuation.x * col.x, attenuation.y * col.y,
+                        attenuation.z * col.z);
+        } else {
+            return vec3(0, 0, 0);
+        }
     } else {
         vec3 unit_dir = unit(r.direction);
         float k = 0.5 * (unit_dir.y + 1.0);
@@ -38,10 +40,12 @@ int main() {
     const int ns = 100;
 
     // Scene Configuration
-    hitable *list[2];
-    list[0] = new sphere(vec3(0.0, 0.0, -1.0), 0.5f);
-    list[1] = new sphere(vec3(0.0, -100.5f, -1.0), 100.0);
-    hitable *world = new hitable_list(list, 2);
+    hitable *list[4];
+    list[0] = new sphere(vec3(0, 0, -1), 0.5, new lambertian(vec3(0.8, 0.3, 0.3)));
+    list[1] = new sphere(vec3(0, -100.5f, -1), 100.0, new lambertian(vec3(0.8, 0.8, 0.0)));
+    list[2] = new sphere(vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 1.0));
+    list[3] = new sphere(vec3(-1, 0, -1), 0.5, new metal(vec3(0.8, 0.8, 0.8), 0.3));
+    hitable *world = new hitable_list(list, 4);
 
     // Camera
     camera cam;
@@ -57,7 +61,7 @@ int main() {
                 float v = float(y + drand48()) / float(ny);
 
                 ray r = cam.get_ray(u, v);
-                col += color_at(r, world);
+                col += color_at(r, world, 0);
             }
             col /= float(ns);
             // gamma correction:
