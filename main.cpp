@@ -42,14 +42,19 @@ int main() {
     // Scene Configuration
     hitable *list[2];
     float R = cos(M_PI / 4);
-    list[0] = new sphere(vec3(-R, 0, -1), R, new lambertian(vec3(0, 0, 1)));
-    list[1] = new sphere(vec3(R, 0, -1), R, new lambertian(vec3(1, 0, 0)));
+    list[0] = new sphere(vec3(-R,0,-1), R, new metal(vec3(0,0,1), 0.3));
+    list[1] = new sphere(vec3( R,0,-1), R, new lambertian(vec3(1,0,0)));
     hitable *world = new hitable_list(list, 2);
 
     // Camera
-    camera cam(90, float(nx) / float(ny));
+    vec3 lookfrom(3,3,2);
+    vec3 lookat(0,0,-1);
+    float dist_to_focus = (lookfrom - lookat).length();
+    float aperture = 2.0;
+    camera cam(lookfrom, lookat, vec3(0,1,0), 20, float(nx)/float(ny),
+                aperture, dist_to_focus);
 
-    // Rendering
+    // Rendering and Output
     std::fstream fout("result.ppm", std::fstream::trunc | std::fstream::out);
     fout << "P3\n" << nx << " " << ny << "\n255\n";
     for (int y = ny-1; y >= 0; y--) {
