@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
     // Rendering and Output
     pcs_bar bar;
     std::cout << "\033[1;33mStart rendering...\033[0m\n";
-
     std::fstream fout("result.ppm", std::fstream::trunc | std::fstream::out);
     fout << "P3\n" << nx << " " << ny << "\n255\n";
     for (int y = ny-1; y >= 0; y--) {

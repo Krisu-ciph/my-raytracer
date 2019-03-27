@@ -2,6 +2,7 @@
 #define material_hpp
 
 #include "hitable.hpp"
+#include "texture.hpp"
 #include <cmath>
 
 vec3 random_in_unit_sphere();
@@ -23,7 +24,7 @@ public:
 /****** Diffuse ******/
 class lambertian : public material {
 public:
-    lambertian(const vec3 &albedo) : albedo(albedo) {}
+    lambertian(texture *albedo) : albedo(albedo) {}
 
     virtual bool scatter(const ray &r_in, const hit_record &rec,
                          vec3 &attenuation, ray &scattered) const {
@@ -33,28 +34,28 @@ public:
         vec3 target = rec.p + rec.normal + random_in_unit_sphere();
         // send another ray recursively
         scattered = ray(rec.p, target-rec.p);
-        attenuation = albedo;
+        attenuation = albedo->value(0, 0, rec.p);
         return true;
     }
 
-    vec3 albedo;
+    texture *albedo;
 };
 
 /****** Metal ******/
 class metal : public material {
 public:
-    metal(const vec3 &albedo, float fuzz)
+    metal(texture *albedo, float fuzz)
         : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
     virtual bool scatter(const ray &r_in, const hit_record &rec,
                          vec3 &attenuation, ray &scattered) const {
         vec3 reflected = reflect(unit(r_in.direction), rec.normal);
         scattered = ray(rec.p, reflected + fuzz * random_in_unit_sphere(), r_in.time);
-        attenuation = albedo;
+        attenuation = albedo->value(0, 0, rec.p);
         return (dot(scattered.direction, rec.normal) > 0);
     }
 
-    vec3 albedo;
+    texture *albedo;
     float fuzz;
 };
 
