@@ -11,6 +11,7 @@
 #include "material.hpp"
 #include "pcs_bar.hpp"
 #include "scene_config.hpp"
+#include "bvh.hpp"
 
 /*****
 This function use Path Tracing to calculate color at certain pixels.
