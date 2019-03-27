@@ -49,12 +49,12 @@ hitable *random_scene() {
             float choose_mat = drand48(); // Randomly choose material
             vec3 center(a+0.9*drand48(), 0.2, b+0.9*drand48());
             if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
-                if (choose_mat < 0.6) { // Diffuse
+                if (choose_mat < 0.55) { // Diffuse
                     #define _temp (drand48() * drand48())
                     list[i++] = new sphere(center, 0.2,
                         new lambertian(vec3(_temp, _temp, _temp)));
                     #undef _temp
-                } else if (choose_mat < 0.8) {// Metal
+                } else if (choose_mat < 0.80) {// Metal
                     #define _temp (0.5*(1 + drand48()))
                     list[i++] = new sphere(center, 0.2,
                         new metal(vec3(_temp, _temp, _temp), 0.5*drand48()));
