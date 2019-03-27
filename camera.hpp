@@ -22,7 +22,9 @@ public:
     // vfov is top to bottom in degrees
     camera(vec3 lookfrom, vec3 lookat, vec3 vup, float vfov, float aspect,
             float aperture, float focus_dist) {
-        float theta = vfov*M_PI/180;
+        lens_radius = aperture / 2;
+
+        float theta = vfov*M_PI/180; // Change field of view to radius
         float half_height = tan(theta/2);
         float half_width = aspect * half_height;
 
@@ -31,9 +33,10 @@ public:
         u = unit(cross(vup, w));
         v = cross(w, u); // Now u, v, w form an orthonormal basis
 
-        lower_left_corner = origin - (half_width*u - half_height*v - w) * focus_dist;
-        horizontal = 2 * half_width * u * focus_dist;
-        vertical = 2 * half_height * v * focus_dist;
+        lower_left_corner = origin - focus_dist * (half_width*u + half_height*v + w);
+
+        horizontal = 2*half_width*focus_dist * u;
+        vertical = 2*half_height*focus_dist * v;
     }
     ray get_ray(float s, float t) {
         vec3 rd = lens_radius * random_in_unit_disk();
