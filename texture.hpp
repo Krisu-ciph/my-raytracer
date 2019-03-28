@@ -2,11 +2,13 @@
 #define texture_hpp
 
 #include <cmath>
+#include "perlin.hpp"
 
 class texture {
 public:
     virtual vec3 value(float u, float v, const vec3 &p) const = 0;
 };
+
 
 class constant_texture : public texture {
 public:
@@ -20,6 +22,7 @@ public:
 
     vec3 color;
 };
+
 
 class checker_texture : public texture {
 public:
@@ -44,6 +47,17 @@ private:
         mx = (mx < 0 ? mx + 2*M_PI : mx);
         return (mx < M_PI ? 1 : -1);
     }
+};
+
+
+class noise_texture : public texture {
+public:
+    noise_texture(float sc = 1.0f) : scale(sc) {}
+    virtual vec3 value(float u, float v, const vec3 &p) const {
+        return vec3(1,1,1)*0.5*(1 + std::sin(scale*p.z + 10*noise.turb(p)));
+    }
+    perlin noise;
+    float scale;
 };
 
 #endif

@@ -39,12 +39,12 @@ vec3 color_at(const ray &r, hitable *world, int depth) {
 }
 
 int main(int argc, char **argv) {
-    const int nx = 1080;
-    const int ny = 720;
+    const int nx = 720;
+    const int ny = 480;
     const int ns = 100;
 
     // Scene Configuration
-    hitable *world = random_scene();
+    hitable *world = two_perlin_spheres();
 
     // Camera
     vec3 lookfrom(13,2,3);
