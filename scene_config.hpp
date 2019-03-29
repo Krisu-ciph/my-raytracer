@@ -7,6 +7,8 @@
 #include "moving_sphere.hpp"
 
 hitable *random_scene() {
+    srand(time(0));
+
     int n = 500;
     hitable **list = new hitable*[n + 1];
 

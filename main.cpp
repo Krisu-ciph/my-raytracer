@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     const int ns = 100;
 
     // Scene Configuration
-    hitable *world = two_perlin_spheres();
+    hitable *world = random_scene();
 
     // Camera
     vec3 lookfrom(13,2,3);
